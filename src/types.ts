@@ -1,7 +1,9 @@
 import { ImageURISource } from 'react-native'
 
-export interface MemoryGameTile {
-  index: number
+export type TileIndex = number
+
+export interface Tile {
+  index: TileIndex
   image: ImageURISource
   fileName: string
 }

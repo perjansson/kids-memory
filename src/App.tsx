@@ -38,7 +38,7 @@ export default function App() {
 
   return (
     <ScreenBackground>
-      <MemoryGame tiles={createTiles()} />
+      <MemoryGame initialTiles={createTiles()} />
     </ScreenBackground>
   )
 }

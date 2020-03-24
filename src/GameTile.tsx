@@ -1,11 +1,11 @@
 import React, { useCallback, memo } from 'react'
-import { MemoryGameTile } from './types'
+import { Tile } from './types'
 import { Image, TouchableWithoutFeedback, View } from 'react-native'
 
 const questionMark = require('../assets/questionMark.png')
 
 interface GameTileProps {
-  gameTile: MemoryGameTile
+  gameTile: Tile
   index: number
   visible: boolean
   onSelect: (index?: number) => void

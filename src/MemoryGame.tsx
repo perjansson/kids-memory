@@ -1,57 +1,76 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useMemo, useReducer } from 'react'
 import { View, StyleSheet, Dimensions } from 'react-native'
 import { ScreenOrientation } from 'expo'
-import { Text, Button } from 'react-native-elements'
 import { shuffle } from 'lodash'
-import Modal from 'react-native-modal'
 
-import { MemoryGameTile } from './types'
+import { Tile } from './types'
+import { reducer, initialState } from './reducer'
 import { GameTile } from './GameTile'
+import { CompletedModal } from './CompletedModal'
 
 const { PORTRAIT, LANDSCAPE, UNKNOWN } = ScreenOrientation.Orientation
 
 interface MemoryGameProps {
-  tiles: MemoryGameTile[]
+  initialTiles: Tile[]
 }
 
-function tryToDetermineOrientation() {
+function determineOrientation() {
   const screenWidth = Math.round(Dimensions.get('window').width)
   const screenHeight = Math.round(Dimensions.get('window').height)
 
   return screenHeight > screenWidth ? PORTRAIT : LANDSCAPE
 }
 
-const GAME_TILES_CONFIGURATION = {
+const TILE_STYLE = {
   [PORTRAIT]: { x: 5, y: 8, xPadding: 1, yPadding: 0.8 },
   [LANDSCAPE]: { x: 8, y: 5, xPadding: 0.8, yPadding: 1 },
 }
 
-function useRefState(initialValue: any) {
-  const [state, setState] = useState(initialValue)
-  const stateRef = useRef(state)
-  useEffect(() => {
-    stateRef.current = state
-  }, [state])
-  return [state, stateRef, setState]
-}
+export function MemoryGame({ initialTiles }: MemoryGameProps) {
+  const [state, dispatch] = useReducer(reducer, initialState)
 
-export function MemoryGame({ tiles }: MemoryGameProps) {
   const [orientation, setOrientation] = useState<ScreenOrientation.Orientation>(
     UNKNOWN
   )
 
-  const [gameTiles, gameTilesRef, setGameTiles] = useRefState([])
-  const [
-    completedGameTiles,
-    completedGameTilesRef,
-    setCompletedGameTiles,
-  ] = useRefState([])
-  const [
-    selectedGameTiles,
-    selectedGameTilesRef,
-    setSelectedGameTiles,
-  ] = useRefState([])
+  /*
+   * Game initialization and logic
+   */
+  useEffect(() => {
+    initGame()
+  }, initialTiles)
 
+  useEffect(() => {
+    if (state.viewState === 'two_selected') {
+      dispatch({ type: 'check_pair', payload: true })
+      checkPairs()
+      setTimeout(() => {
+        dispatch({ type: 'reset_selected' })
+      }, 2000)
+    }
+  }, [state.viewState])
+
+  const initGame = () => {
+    dispatch({
+      type: 'start_game',
+      payload: shuffle([...initialTiles, ...initialTiles]),
+    })
+  }
+
+  const checkPairs = () => {
+    const [index1, index2] = state.selected
+
+    const gameTile1 = state.tiles[index1]
+    const gameTile2 = state.tiles[index2]
+
+    if (gameTile1 === gameTile2) {
+      dispatch({ type: 'got_pair', payload: [index1, index2] })
+    }
+  }
+
+  /*
+   * Device orientation
+   */
   useEffect(() => {
     ScreenOrientation.getOrientationAsync().then(({ orientation }) => {
       setOrientation(orientation)
@@ -65,16 +84,13 @@ export function MemoryGame({ tiles }: MemoryGameProps) {
     return sub.remove
   })
 
-  useEffect(() => {
-    initGame()
-  }, tiles)
-
+  /*
+   * Orientation specific styles
+   */
   const currentOrientation =
-    GAME_TILES_CONFIGURATION[orientation] !== undefined
-      ? orientation
-      : tryToDetermineOrientation()
+    TILE_STYLE[orientation] !== undefined ? orientation : determineOrientation()
 
-  const currentGameTilesConfig = GAME_TILES_CONFIGURATION[currentOrientation]
+  const currentGameTilesConfig = TILE_STYLE[currentOrientation]
 
   const gameTileContainerStyle = useMemo(
     () => ({
@@ -87,60 +103,32 @@ export function MemoryGame({ tiles }: MemoryGameProps) {
     [currentGameTilesConfig]
   )
 
-  const initGame = () => {
-    setGameTiles(shuffle([...tiles, ...tiles]))
-    setCompletedGameTiles([])
-  }
-
-  const checkPairs = (newSelectedGameTiles: number[]) => {
-    const [selectedIndex1, selectedIndex2] = newSelectedGameTiles
-
-    const gameTile1 = gameTilesRef.current[selectedIndex1]
-    const gameTile2 = gameTilesRef.current[selectedIndex2]
-
-    if (gameTile1 === gameTile2) {
-      setCompletedGameTiles([
-        ...completedGameTilesRef.current,
-        selectedIndex1,
-        selectedIndex2,
-      ])
+  /*
+   * Event handlers
+   */
+  const handleOnSelect = (index: number) => {
+    if (state.locked) {
+      return
     }
+
+    dispatch({ type: 'select_tile', payload: index })
   }
 
-  const handleOnSelect = useCallback(
-    (index: number) => {
-      switch (selectedGameTilesRef.current.length) {
-        case 0:
-          setSelectedGameTiles([index])
-          break
-
-        case 1:
-          const newSelectedGameTiles = [...selectedGameTilesRef.current, index]
-          setSelectedGameTiles(newSelectedGameTiles)
-          checkPairs(newSelectedGameTiles)
-          setTimeout(() => setSelectedGameTiles([]), 2000)
-
-          break
-      }
-    },
-    [tiles]
-  )
-
-  const gameCompleted = completedGameTiles.length === gameTiles.length
+  const { tiles, selected, completed } = state
+  const isGameCompleted = completed.length === tiles.length
 
   return (
     currentOrientation && (
       <View style={styles.container}>
-        {gameTiles.map((gameTile: MemoryGameTile, i: number) => {
-          const selected = selectedGameTiles.includes(i)
-          const completed = completedGameTiles.includes(i)
+        {tiles.map((gameTile: Tile, i: number) => {
+          const visible = selected.includes(i) || completed.includes(i)
 
           return (
             <GameTile
               key={i}
               gameTile={gameTile}
               index={i}
-              visible={selected || completed}
+              visible={visible}
               onSelect={handleOnSelect}
               containerStyle={gameTileContainerStyle}
               imageContainerStyle={styles.gameTileImage}
@@ -148,22 +136,7 @@ export function MemoryGame({ tiles }: MemoryGameProps) {
           )
         })}
 
-        {gameCompleted && (
-          <View style={{ flex: 1 }}>
-            <Modal isVisible backdropColor="white">
-              <View style={styles.modalContainer}>
-                <Text style={styles.modalHeader}>🏆</Text>
-                <Button
-                  title="Restart game"
-                  raised
-                  onPress={initGame}
-                  buttonStyle={styles.modalButton}
-                  titleStyle={styles.modalButtonTitle}
-                />
-              </View>
-            </Modal>
-          </View>
-        )}
+        {isGameCompleted && <CompletedModal onDismiss={initGame} />}
       </View>
     )
   )
@@ -188,17 +161,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  modalHeader: {
-    marginVertical: 40,
-    fontSize: 180,
-  },
-  modalButton: {
-    backgroundColor: 'gold',
-    padding: 20,
-  },
-  modalButtonTitle: {
-    color: 'black',
-    fontSize: 48,
   },
 })
