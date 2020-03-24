@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useReducer } from 'react'
 import { View, StyleSheet, Dimensions } from 'react-native'
 import { ScreenOrientation } from 'expo'
+import { Audio } from 'expo-av'
 import { shuffle } from 'lodash'
 
 import { Tile } from './types'
@@ -68,6 +69,13 @@ export function MemoryGame({ initialTiles }: MemoryGameProps) {
     }
   }
 
+  const playSound = () => {
+    const soundObject = new Audio.Sound()
+    soundObject
+      .loadAsync(require('../assets/click-sound-effect.mp3'))
+      .then(() => soundObject.playAsync())
+  }
+
   /*
    * Device orientation
    */
@@ -111,6 +119,7 @@ export function MemoryGame({ initialTiles }: MemoryGameProps) {
       return
     }
 
+    playSound()
     dispatch({ type: 'select_tile', payload: index })
   }
 
