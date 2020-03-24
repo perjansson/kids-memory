@@ -1,6 +1,6 @@
 import React, { useCallback, memo } from 'react'
-import { Tile } from 'react-native-elements'
 import { MemoryGameTile } from './types'
+import { Image, TouchableWithoutFeedback, View } from 'react-native'
 
 const questionMark = require('../assets/questionMark.png')
 
@@ -14,21 +14,27 @@ interface GameTileProps {
 }
 
 export const GameTile = memo(
-  ({ gameTile, index, visible, onSelect, ...rest }: GameTileProps) => {
+  ({
+    gameTile,
+    index,
+    visible,
+    onSelect,
+    containerStyle,
+    imageContainerStyle,
+  }: GameTileProps) => {
     const { image } = gameTile
     const handleOnPress = useCallback(() => onSelect(index), [index])
 
     return (
-      <Tile
-        imageSrc={visible ? image : questionMark}
-        imageProps={{
-          resizeMode: 'contain',
-        }}
-        onPress={handleOnPress}
-        featured
-        activeOpacity={0}
-        {...rest}
-      />
+      <View style={containerStyle}>
+        <TouchableWithoutFeedback onPress={handleOnPress}>
+          <Image
+            source={visible ? image : questionMark}
+            resizeMode="contain"
+            style={imageContainerStyle}
+          />
+        </TouchableWithoutFeedback>
+      </View>
     )
   }
 )

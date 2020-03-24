@@ -183,7 +183,6 @@ const styles = StyleSheet.create({
   gameTileImage: {
     width: '100%',
     height: '100%',
-    maxHeight: 100,
   },
   modalContainer: {
     flex: 1,
