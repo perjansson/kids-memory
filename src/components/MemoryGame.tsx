@@ -1,12 +1,19 @@
-import React, { useState, useEffect, useMemo, useReducer } from 'react'
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useReducer,
+  createRef,
+} from 'react'
 import { View, StyleSheet, Dimensions } from 'react-native'
 import { ScreenOrientation } from 'expo'
 import { Audio } from 'expo-av'
 import { shuffle } from 'lodash'
+import * as Animatable from 'react-native-animatable'
 
 import { Tile } from '../types'
 import { reducer, initialState } from '../reducer'
-import { GameTile } from './GameTile'
+import { GameTile, AnimateFn } from './GameTile'
 import { CompletedModal } from './CompletedModal'
 
 const { PORTRAIT, LANDSCAPE, UNKNOWN } = ScreenOrientation.Orientation
@@ -30,6 +37,8 @@ const TILE_STYLE = {
 
 let clickSoundInstance: Audio.Sound = undefined
 
+const imageRefs = {}
+
 export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
@@ -47,7 +56,7 @@ export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
 
   useEffect(() => {
     if (state.viewState === 'two_selected') {
-      dispatch({ type: 'check_pair', payload: true })
+      dispatch({ type: 'check_pair' })
       checkPairs()
       setTimeout(() => {
         dispatch({ type: 'reset_selected' })
@@ -76,6 +85,9 @@ export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
     const gameTile2 = state.tiles[index2]
 
     if (gameTile1 === gameTile2) {
+      imageRefs[index1].current.flash()
+      imageRefs[index2].current.flash()
+
       dispatch({ type: 'got_pair', payload: [index1, index2] })
     }
   }
@@ -122,12 +134,13 @@ export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
   /*
    * Event handlers
    */
-  const handleOnSelect = (index: number) => {
+  const handleOnSelect = (index: number, animate: AnimateFn) => {
     if (state.locked) {
       return
     }
 
     playSound(clickSoundInstance)
+    animate('fadeIn')
     dispatch({ type: 'select_tile', payload: index })
   }
 
@@ -137,6 +150,9 @@ export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
     currentOrientation && (
       <View style={styles.container}>
         {tiles.map((gameTile: Tile, i: number) => {
+          const imageRef = createRef<Animatable.Image>()
+          imageRefs[i] = imageRef
+
           const visible = selected.includes(i) || completed.includes(i)
 
           return (
@@ -148,6 +164,7 @@ export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
               onSelect={handleOnSelect}
               containerStyle={gameTileContainerStyle}
               imageContainerStyle={styles.gameTileImage}
+              imageRef={imageRef}
             />
           )
         })}
