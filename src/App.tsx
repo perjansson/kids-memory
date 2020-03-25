@@ -1,10 +1,13 @@
-import React from 'react'
-import { ScreenBackground } from './ScreenBackground'
+import React, { useState, useEffect } from 'react'
+import { ImageURISource } from 'react-native'
 
 import { TileSet } from './types'
+import * as storage from './storage'
 import assetsMap from '../assets/assetsMap.json'
 import { MemoryGame } from './MemoryGame'
-import { ImageURISource } from 'react-native'
+import { ScreenBackground } from './ScreenBackground'
+
+const LAST_TILE_SET_STORAGE_KEY = '@KidsMemory:lastTileSetStorageKey'
 
 interface TileSetMap {
   [key: string]: ImageURISource[]
@@ -58,6 +61,8 @@ const IMAGES: TileSetMap = {
 }
 
 export default function App() {
+  const [tileSet, setTileSet] = useState<TileSet>(undefined)
+
   function createTiles(tileSet: TileSet) {
     return IMAGES[tileSet].map((image, index) => ({
       index,
@@ -66,11 +71,27 @@ export default function App() {
     }))
   }
 
-  const tileSet: TileSet = 'vehicles'
+  async function setNextTileSet() {
+    const lastTileSet = (await storage.get(LAST_TILE_SET_STORAGE_KEY)) as
+      | TileSet
+      | undefined
+    const nextTileSet = lastTileSet !== 'animals' ? 'animals' : 'vehicles'
+    setTileSet(nextTileSet)
+    storage.set(LAST_TILE_SET_STORAGE_KEY, nextTileSet)
+  }
+
+  useEffect(() => {
+    setNextTileSet()
+  }, [])
 
   return (
     <ScreenBackground>
-      <MemoryGame initialTiles={createTiles(tileSet)} />
+      {tileSet && (
+        <MemoryGame
+          initialTiles={createTiles(tileSet)}
+          onGameCompleted={setNextTileSet}
+        />
+      )}
     </ScreenBackground>
   )
 }

@@ -13,6 +13,7 @@ const { PORTRAIT, LANDSCAPE, UNKNOWN } = ScreenOrientation.Orientation
 
 interface MemoryGameProps {
   initialTiles: Tile[]
+  onGameCompleted: () => void
 }
 
 function determineOrientation() {
@@ -29,7 +30,7 @@ const TILE_STYLE = {
 
 let clickSoundInstance: Audio.Sound = undefined
 
-export function MemoryGame({ initialTiles }: MemoryGameProps) {
+export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   const [orientation, setOrientation] = useState<ScreenOrientation.Orientation>(
@@ -154,7 +155,10 @@ export function MemoryGame({ initialTiles }: MemoryGameProps) {
         })}
 
         {isGameCompleted && (
-          <CompletedModal isVisible={isGameCompleted} onDismiss={initGame} />
+          <CompletedModal
+            isVisible={isGameCompleted}
+            onDismiss={onGameCompleted}
+          />
         )}
       </View>
     )
