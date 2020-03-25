@@ -22,7 +22,9 @@ export function CompletedModal({
   async function playSound() {
     const soundObject = new Audio.Sound()
     try {
-      await soundObject.loadAsync(require('../assets/cheer-sound-effect.mp3'))
+      await soundObject.loadAsync(
+        require('../../assets/cheer-sound-effect.mp3')
+      )
       await soundObject.playAsync()
     } catch (error) {
       // Ignore

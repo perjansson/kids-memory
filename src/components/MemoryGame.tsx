@@ -4,8 +4,8 @@ import { ScreenOrientation } from 'expo'
 import { Audio } from 'expo-av'
 import { shuffle } from 'lodash'
 
-import { Tile } from './types'
-import { reducer, initialState } from './reducer'
+import { Tile } from '../types'
+import { reducer, initialState } from '../reducer'
 import { GameTile } from './GameTile'
 import { CompletedModal } from './CompletedModal'
 
@@ -64,7 +64,7 @@ export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
 
   const initSound = async () => {
     const { sound: clickSound } = await Audio.Sound.createAsync(
-      require('../assets/click-sound-effect.mp3')
+      require('../../assets/click-sound-effect.mp3')
     )
     clickSoundInstance = clickSound
   }

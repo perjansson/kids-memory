@@ -4,8 +4,8 @@ import { ImageURISource } from 'react-native'
 import { TileSet } from './types'
 import * as storage from './storage'
 import assetsMap from '../assets/assetsMap.json'
-import { MemoryGame } from './MemoryGame'
-import { ScreenBackground } from './ScreenBackground'
+import { MemoryGame } from './components/MemoryGame'
+import { ScreenBackground } from './components/ScreenBackground'
 
 const LAST_TILE_SET_STORAGE_KEY = '@KidsMemory:lastTileSetStorageKey'
 

@@ -1,8 +1,8 @@
 import React, { memo } from 'react'
-import { Tile } from './types'
+import { Tile } from '../types'
 import { Image, TouchableWithoutFeedback, View } from 'react-native'
 
-const questionMark = require('../assets/question-mark.png')
+const questionMark = require('../../assets/question-mark.png')
 
 interface GameTileProps {
   gameTile: Tile
