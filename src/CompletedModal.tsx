@@ -4,7 +4,7 @@ import Modal from 'react-native-modal'
 import { View, Text, StyleSheet } from 'react-native'
 import { Button } from 'react-native-elements'
 
-export function CompletedModal({ onDismiss }) {
+export function CompletedModal({ isVisible, onDismiss }) {
   useEffect(() => {
     playSound()
   }, [])
@@ -20,7 +20,7 @@ export function CompletedModal({ onDismiss }) {
   }
 
   return (
-    <Modal isVisible backdropColor="white">
+    <Modal isVisible={isVisible} backdropColor="white">
       <View style={styles.modalContainer}>
         <Text style={styles.modalHeader}>🏆</Text>
         <Button

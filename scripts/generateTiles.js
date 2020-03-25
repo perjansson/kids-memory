@@ -1,34 +1,44 @@
 const path = require('path')
 const fs = require('fs')
+const { readdirSync } = require('fs')
 
-const SRC_DIR_PATH = path.join(__dirname, '..', 'gameTileSets', 'animals')
+const SRC_DIR_PATH = path.join(__dirname, '..', 'gameTileSets')
 const TARGET_DIR_PATH = path.join(__dirname, '..', 'assets', 'tiles')
 const TARGET_FILE_PATH = path.join(__dirname, '..', 'assets', 'assetsMap.json')
 
-function generateTiles() {
+function getDirectories(source) {
+  return readdirSync(source, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name)
+}
+
+function generateTiles(folder) {
+  const sourceDir = path.join(SRC_DIR_PATH, folder)
+  const targetDir = path.join(TARGET_DIR_PATH, folder)
+
   let files = undefined
   let assetsMap = undefined
   try {
-    files = fs.readdirSync(SRC_DIR_PATH)
+    files = fs.readdirSync(sourceDir)
     assetsMap = files.reduce((memo, file, i) => ({ ...memo, [i]: file }), {})
   } catch (error) {
-    console.error('>>> Error reading source directory at', SRC_DIR_PATH, error)
+    console.error('>>> Error reading source directory at', sourceDir, error)
     process.exit(1)
   }
 
-  if (!fs.existsSync(TARGET_DIR_PATH)) {
-    fs.mkdirSync(TARGET_DIR_PATH)
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir)
   }
 
   try {
     files.forEach((file, i) =>
       fs.copyFileSync(
-        path.join(SRC_DIR_PATH, file),
-        path.join(TARGET_DIR_PATH, `${i}.png`)
+        path.join(sourceDir, file),
+        path.join(targetDir, `${i}.png`)
       )
     )
   } catch (error) {
-    console.error('>>> Error copying files from', SRC_DIR_PATH, error)
+    console.error('>>> Error copying files from', sourceDir, error)
     process.exit(1)
   }
 
@@ -43,7 +53,7 @@ function generateTiles() {
     process.exit(1)
   }
 
-  console.info('>>> Files successfully copied to', TARGET_DIR_PATH)
+  console.info('>>> Files successfully copied to', targetDir)
 }
 
-generateTiles()
+getDirectories(SRC_DIR_PATH).forEach(generateTiles)

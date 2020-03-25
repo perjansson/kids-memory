@@ -131,7 +131,8 @@ export function MemoryGame({ initialTiles }: MemoryGameProps) {
   }
 
   const { tiles, selected, completed } = state
-  const isGameCompleted = completed.length === tiles.length
+  const isGameCompleted =
+    completed.length !== 0 && completed.length === tiles.length
 
   return (
     currentOrientation && (
@@ -152,7 +153,9 @@ export function MemoryGame({ initialTiles }: MemoryGameProps) {
           )
         })}
 
-        {isGameCompleted && <CompletedModal onDismiss={initGame} />}
+        {isGameCompleted && (
+          <CompletedModal isVisible={isGameCompleted} onDismiss={initGame} />
+        )}
       </View>
     )
   )
