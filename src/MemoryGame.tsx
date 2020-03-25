@@ -27,6 +27,8 @@ const TILE_STYLE = {
   [LANDSCAPE]: { x: 8, y: 5, xPadding: 0.8, yPadding: 1 },
 }
 
+let clickSoundInstance: Audio.Sound = undefined
+
 export function MemoryGame({ initialTiles }: MemoryGameProps) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
@@ -39,6 +41,7 @@ export function MemoryGame({ initialTiles }: MemoryGameProps) {
    */
   useEffect(() => {
     initGame()
+    initSound()
   }, initialTiles)
 
   useEffect(() => {
@@ -58,6 +61,13 @@ export function MemoryGame({ initialTiles }: MemoryGameProps) {
     })
   }
 
+  const initSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require('../assets/click-sound-effect.mp3')
+    )
+    clickSoundInstance = sound
+  }
+
   const checkPairs = () => {
     const [index1, index2] = state.selected
 
@@ -70,10 +80,7 @@ export function MemoryGame({ initialTiles }: MemoryGameProps) {
   }
 
   const playSound = () => {
-    const soundObject = new Audio.Sound()
-    soundObject
-      .loadAsync(require('../assets/click-sound-effect.mp3'))
-      .then(() => soundObject.playAsync())
+    clickSoundInstance && clickSoundInstance.playFromPositionAsync(0)
   }
 
   /*
