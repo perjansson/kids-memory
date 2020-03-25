@@ -11,10 +11,12 @@ type ActionType = {
 }
 
 interface State {
-  viewState: 'none_selected' | 'one_selected' | 'two_selected'
+  viewState: 'none_selected' | 'one_selected' | 'two_selected' | 'completed'
   tiles: Tile[]
   selected: TileIndex[]
   completed: TileIndex[]
+  startTime: Date
+  stopTime: Date
   locked: boolean
 }
 
@@ -23,6 +25,8 @@ export const initialState: State = {
   tiles: [],
   selected: [],
   completed: [],
+  startTime: undefined,
+  stopTime: undefined,
   locked: false,
 }
 
@@ -35,13 +39,18 @@ export function reducer(
       return {
         ...initialState,
         tiles: action.payload,
+        startTime: undefined,
+        stopTime: undefined,
       }
     }
 
     case 'select_tile': {
+      let startTime = state.startTime || new Date()
+
       if (state.selected.length === 0) {
         return {
           ...state,
+          startTime,
           viewState: 'one_selected',
           selected: [action.payload],
         }
@@ -49,6 +58,7 @@ export function reducer(
         if (state.selected[0] !== action.payload) {
           return {
             ...state,
+            startTime,
             viewState: 'two_selected',
             selected: [...state.selected, action.payload],
           }
@@ -61,16 +71,23 @@ export function reducer(
     case 'reset_selected': {
       return {
         ...state,
-        viewState: 'none_selected',
+        viewState:
+          state.viewState !== 'completed' ? 'none_selected' : 'completed',
         selected: [],
         locked: false,
       }
     }
 
     case 'got_pair': {
+      const completed = [...state.completed, ...action.payload]
+      const gameCompleted =
+        completed.length !== 0 && completed.length === state.tiles.length
+
       return {
         ...state,
-        completed: [...state.completed, ...action.payload],
+        viewState: gameCompleted ? 'completed' : state.viewState,
+        completed,
+        stopTime: gameCompleted ? new Date() : undefined,
       }
     }
 

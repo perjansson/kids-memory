@@ -51,7 +51,7 @@ export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
       checkPairs()
       setTimeout(() => {
         dispatch({ type: 'reset_selected' })
-      }, 2000)
+      }, 1500)
     }
   }, [state.viewState])
 
@@ -131,9 +131,7 @@ export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
     dispatch({ type: 'select_tile', payload: index })
   }
 
-  const { tiles, selected, completed } = state
-  const isGameCompleted =
-    completed.length !== 0 && completed.length === tiles.length
+  const { viewState, tiles, selected, completed, startTime, stopTime } = state
 
   return (
     currentOrientation && (
@@ -154,9 +152,10 @@ export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
           )
         })}
 
-        {isGameCompleted && (
+        {viewState === 'completed' && (
           <CompletedModal
-            isVisible={isGameCompleted}
+            isVisible
+            completionTime={stopTime.getTime() - startTime.getTime()}
             onDismiss={onGameCompleted}
           />
         )}
