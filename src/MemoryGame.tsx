@@ -62,10 +62,10 @@ export function MemoryGame({ initialTiles }: MemoryGameProps) {
   }
 
   const initSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
+    const { sound: clickSound } = await Audio.Sound.createAsync(
       require('../assets/click-sound-effect.mp3')
     )
-    clickSoundInstance = sound
+    clickSoundInstance = clickSound
   }
 
   const checkPairs = () => {
@@ -79,8 +79,8 @@ export function MemoryGame({ initialTiles }: MemoryGameProps) {
     }
   }
 
-  const playSound = () => {
-    clickSoundInstance && clickSoundInstance.playFromPositionAsync(0)
+  const playSound = (sound: Audio.Sound) => {
+    sound && sound.playFromPositionAsync(0)
   }
 
   /*
@@ -126,7 +126,7 @@ export function MemoryGame({ initialTiles }: MemoryGameProps) {
       return
     }
 
-    playSound()
+    playSound(clickSoundInstance)
     dispatch({ type: 'select_tile', payload: index })
   }
 

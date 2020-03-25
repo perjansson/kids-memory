@@ -1,9 +1,24 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { Audio } from 'expo-av'
 import Modal from 'react-native-modal'
 import { View, Text, StyleSheet } from 'react-native'
 import { Button } from 'react-native-elements'
 
 export function CompletedModal({ onDismiss }) {
+  useEffect(() => {
+    playSound()
+  }, [])
+
+  const playSound = async () => {
+    const soundObject = new Audio.Sound()
+    try {
+      await soundObject.loadAsync(require('../assets/cheer-sound-effect.mp3'))
+      await soundObject.playAsync()
+    } catch (error) {
+      // Ignore
+    }
+  }
+
   return (
     <Modal isVisible backdropColor="white">
       <View style={styles.modalContainer}>
