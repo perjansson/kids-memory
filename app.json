@@ -7,11 +7,11 @@
     "platforms": ["ios", "android", "web"],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon_game.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash_game.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0f0114"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
