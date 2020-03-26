@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { ImageURISource } from 'react-native'
+import { Asset } from 'expo-asset'
+import { AppLoading } from 'expo'
 
 import { TileSet } from './types'
 import * as storage from './storage'
@@ -10,7 +11,7 @@ import { ScreenBackground } from './components/ScreenBackground'
 const LAST_TILE_SET_STORAGE_KEY = '@KidsMemory:lastTileSetStorageKey'
 
 interface TileSetMap {
-  [key: string]: ImageURISource[]
+  [key: string]: string[]
 }
 
 const IMAGES: TileSetMap = {
@@ -60,7 +61,24 @@ const IMAGES: TileSetMap = {
   ],
 }
 
+interface CacheTileSetMap {
+  [key: string]: Promise<void>[]
+}
+async function cacheResourcesAsync() {
+  const allImageRefs = Object.entries(IMAGES).reduce(
+    (memo, [_tileSetKey, tileSet]) => ({
+      ...memo,
+      ...tileSet.map(image => {
+        return Asset.fromModule(image).downloadAsync()
+      }),
+    }),
+    []
+  )
+  return Promise.all(allImageRefs)
+}
+
 export default function App() {
+  const [isReady, setIsReady] = useState<boolean>(false)
   const [tileSet, setTileSet] = useState<TileSet>(undefined)
 
   function createTiles(tileSet: TileSet) {
@@ -83,6 +101,18 @@ export default function App() {
   useEffect(() => {
     setNextTileSet()
   }, [])
+
+  console.log('>>> isReady', isReady)
+
+  if (!isReady) {
+    return (
+      <AppLoading
+        startAsync={cacheResourcesAsync as any}
+        onFinish={() => setIsReady(true)}
+        onError={console.warn}
+      />
+    )
+  }
 
   return (
     <ScreenBackground>
