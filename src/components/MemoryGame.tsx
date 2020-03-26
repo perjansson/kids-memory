@@ -125,9 +125,6 @@ export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
   const currentGameTilesConfig = TILE_STYLE[currentOrientation]
 
   const gameTileContainerStyle = useMemo(() => {
-    const screenWidth = Math.round(Dimensions.get('window').width)
-    const screenHeight = Math.round(Dimensions.get('window').height)
-
     return {
       ...styles.gameTile,
       flexBasis: `${100 / currentGameTilesConfig.x}%`,
@@ -138,13 +135,17 @@ export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
   /*
    * Event handlers
    */
-  const handleOnSelect = (index: number, animate: AnimateFn) => {
-    if (state.locked || state.selected[0] === index) {
+  const handleOnSelect = (index: number, _animate: AnimateFn) => {
+    const shouldNotSelect =
+      state.locked ||
+      state.selected[0] === index ||
+      state.completed.includes(index)
+
+    if (shouldNotSelect) {
       return
     }
 
     playSound(clickSoundInstance)
-    animate('fadeIn')
     dispatch({ type: 'select_tile', payload: index })
   }
 
