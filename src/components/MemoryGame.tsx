@@ -31,8 +31,8 @@ function determineOrientation() {
 }
 
 const TILE_STYLE = {
-  [PORTRAIT]: { x: 5, y: 8, xPadding: 1, yPadding: 0.8 },
-  [LANDSCAPE]: { x: 8, y: 5, xPadding: 0.8, yPadding: 1 },
+  [PORTRAIT]: { x: 5, y: 8 },
+  [LANDSCAPE]: { x: 8, y: 5 },
 }
 
 let clickSoundInstance: Audio.Sound = undefined
@@ -93,7 +93,11 @@ export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
   }
 
   const playSound = (sound: Audio.Sound) => {
-    sound && sound.playFromPositionAsync(0)
+    try {
+      sound && sound.playFromPositionAsync(0)
+    } catch (error) {
+      // Ignore
+    }
   }
 
   /*
@@ -120,22 +124,22 @@ export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
 
   const currentGameTilesConfig = TILE_STYLE[currentOrientation]
 
-  const gameTileContainerStyle = useMemo(
-    () => ({
+  const gameTileContainerStyle = useMemo(() => {
+    const screenWidth = Math.round(Dimensions.get('window').width)
+    const screenHeight = Math.round(Dimensions.get('window').height)
+
+    return {
       ...styles.gameTile,
-      flexBasis: `${100 / currentGameTilesConfig.x -
-        currentGameTilesConfig.xPadding}%`,
-      height: `${100 / currentGameTilesConfig.y -
-        currentGameTilesConfig.yPadding}%`,
-    }),
-    [currentGameTilesConfig]
-  )
+      flexBasis: `${100 / currentGameTilesConfig.x}%`,
+      height: `${100 / currentGameTilesConfig.y}%`,
+    }
+  }, [currentGameTilesConfig])
 
   /*
    * Event handlers
    */
   const handleOnSelect = (index: number, animate: AnimateFn) => {
-    if (state.locked) {
+    if (state.locked || state.selected[0] === index) {
       return
     }
 
@@ -145,52 +149,61 @@ export function MemoryGame({ initialTiles, onGameCompleted }: MemoryGameProps) {
   }
 
   const { viewState, tiles, selected, completed, startTime, stopTime } = state
+  const completionTime =
+    startTime && stopTime && stopTime.getTime() - startTime.getTime()
 
   return (
     currentOrientation && (
-      <View style={styles.container}>
-        {tiles.map((gameTile: Tile, i: number) => {
-          const imageRef = createRef<Animatable.Image>()
-          imageRefs[i] = imageRef
+      <View style={styles.wrapper}>
+        <View style={styles.container}>
+          {tiles.map((gameTile: Tile, i: number) => {
+            const imageRef = createRef<Animatable.Image>()
+            imageRefs[i] = imageRef
 
-          const visible = selected.includes(i) || completed.includes(i)
+            const visible = selected.includes(i) || completed.includes(i)
 
-          return (
-            <GameTile
-              key={i}
-              gameTile={gameTile}
-              index={i}
-              visible={visible}
-              onSelect={handleOnSelect}
-              containerStyle={gameTileContainerStyle}
-              imageContainerStyle={styles.gameTileImage}
-              imageRef={imageRef}
+            return (
+              <GameTile
+                key={i}
+                gameTile={gameTile}
+                index={i}
+                visible={visible}
+                onSelect={handleOnSelect}
+                containerStyle={gameTileContainerStyle}
+                imageContainerStyle={styles.gameTileImage}
+                imageRef={imageRef}
+              />
+            )
+          })}
+          {viewState === 'completed' && (
+            <CompletedModal
+              isVisible
+              completionTime={completionTime}
+              onDismiss={onGameCompleted}
             />
-          )
-        })}
-
-        {viewState === 'completed' && (
-          <CompletedModal
-            isVisible
-            completionTime={stopTime.getTime() - startTime.getTime()}
-            onDismiss={onGameCompleted}
-          />
-        )}
+          )}
+        </View>
       </View>
     )
   )
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
+    height: '100%',
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
   },
   gameTile: {
-    marginVertical: 5,
-    padding: 5,
+    padding: '1%',
   },
   gameTileImage: {
     width: '100%',

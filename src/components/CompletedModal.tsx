@@ -5,7 +5,7 @@ import { View, Text, StyleSheet } from 'react-native'
 import { Button } from 'react-native-elements'
 
 interface CompletedModalProps {
-  completionTime: number
+  completionTime?: number
   isVisible: boolean
   onDismiss: () => void
 }
@@ -31,14 +31,18 @@ export function CompletedModal({
     }
   }
 
-  const formattedTime = new Date(completionTime).toISOString().substr(11, 8)
+  const formattedTime =
+    completionTime && new Date(completionTime).toISOString().substr(11, 8)
+  const buttonTitle = formattedTime
+    ? `You did it in ${formattedTime}! Restart game?`
+    : 'You did it! Restart game?'
 
   return (
     <Modal isVisible={isVisible} backdropColor="white">
       <View style={styles.modalContainer}>
         <Text style={styles.modalHeader}>🏆</Text>
         <Button
-          title={`You did it in ${formattedTime}! Restart game?`}
+          title={buttonTitle}
           raised
           onPress={onDismiss}
           buttonStyle={styles.modalButton}
