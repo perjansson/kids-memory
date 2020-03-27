@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { View, StyleSheet, LayoutChangeEvent, Dimensions } from 'react-native'
 import { Asset } from 'expo-asset'
 import { AppLoading } from 'expo'
 
@@ -9,6 +10,11 @@ import { MemoryGame } from './components/MemoryGame'
 import { ScreenBackground } from './components/ScreenBackground'
 
 const LAST_TILE_SET_STORAGE_KEY = '@KidsMemory:lastTileSetStorageKey'
+
+interface ViewLayout {
+  height: number | string
+  width: number | string
+}
 
 interface TileSetMap {
   [key: string]: string[]
@@ -61,9 +67,6 @@ const IMAGES: TileSetMap = {
   ],
 }
 
-interface CacheTileSetMap {
-  [key: string]: Promise<void>[]
-}
 async function cacheResourcesAsync() {
   const allImageRefs = Object.entries(IMAGES).reduce(
     (memo, [_tileSetKey, tileSet]) => ({
@@ -77,16 +80,30 @@ async function cacheResourcesAsync() {
   return Promise.all(allImageRefs)
 }
 
+const tilesCache = {}
+
 export default function App() {
   const [isReady, setIsReady] = useState<boolean>(false)
+  const [viewLayout, setViewLayout] = useState<ViewLayout>({
+    width: '100%',
+    height: '100%',
+  })
   const [tileSet, setTileSet] = useState<TileSet>(undefined)
 
   function createTiles(tileSet: TileSet) {
-    return IMAGES[tileSet].map((image, index) => ({
-      index,
-      image,
-      fileName: assetsMap[index],
-    }))
+    let tiles = tilesCache[tileSet]
+
+    if (!tiles) {
+      tiles = IMAGES[tileSet].map((image, index) => ({
+        index,
+        image,
+        fileName: assetsMap[index],
+      }))
+
+      tilesCache[tileSet] = tiles
+    }
+
+    return tiles
   }
 
   async function setNextTileSet() {
@@ -102,8 +119,6 @@ export default function App() {
     setNextTileSet()
   }, [])
 
-  console.log('>>> isReady', isReady)
-
   if (!isReady) {
     return (
       <AppLoading
@@ -115,13 +130,24 @@ export default function App() {
   }
 
   return (
-    <ScreenBackground>
-      {tileSet && (
-        <MemoryGame
-          initialTiles={createTiles(tileSet)}
-          onGameCompleted={setNextTileSet}
-        />
-      )}
-    </ScreenBackground>
+    viewLayout && (
+      <View style={styles.container}>
+        <ScreenBackground>
+          {tileSet && (
+            <MemoryGame
+              initialTiles={createTiles(tileSet)}
+              onGameCompleted={setNextTileSet}
+            />
+          )}
+        </ScreenBackground>
+      </View>
+    )
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    height: '100%',
+  },
+})

@@ -7,16 +7,10 @@ interface ScreenBackgroundProps {
   style?: object
 }
 
-export function ScreenBackground({
-  children,
-  style = {},
-}: ScreenBackgroundProps) {
+export function ScreenBackground({ children }: ScreenBackgroundProps) {
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#0f0114', '#060008']}
-        style={{ ...styles.background, ...style }}
-      >
+      <LinearGradient colors={['#0f0114', '#060008']} style={styles.background}>
         {children}
       </LinearGradient>
     </View>
@@ -25,14 +19,14 @@ export function ScreenBackground({
 
 const styles = StyleSheet.create({
   container: {
+    width: '100%',
+    height: '100%',
     flex: 1,
   },
   background: {
     width: '100%',
     height: '100%',
     flex: 1,
-    alignItems: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 20,
+    padding: 20,
   },
 })
