@@ -24,6 +24,7 @@
     },
     "android": {
       "package": "com.pichdude.kidsmemory",
+      "permissions": [],
       "versionCode": 1
     }
   }
