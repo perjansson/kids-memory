@@ -3,6 +3,7 @@ import { Audio } from 'expo-av'
 import Modal from 'react-native-modal'
 import { View, Text, StyleSheet } from 'react-native'
 import { Button } from 'react-native-elements'
+import { normalizeSize } from '../util'
 
 interface CompletedModalProps {
   completionTime?: number
@@ -60,15 +61,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalHeader: {
-    marginVertical: 40,
-    fontSize: 180,
+    marginVertical: normalizeSize(8),
+    fontSize: normalizeSize(64),
   },
   modalButton: {
     backgroundColor: 'gold',
-    padding: 20,
+    padding: normalizeSize(8),
   },
   modalButtonTitle: {
     color: 'black',
-    fontSize: 48,
+    fontSize: normalizeSize(12),
   },
 })
