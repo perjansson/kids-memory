@@ -148,6 +148,13 @@ export const MemoryGame = memo(
     const completionTime =
       startTime && stopTime && stopTime.getTime() - startTime.getTime()
 
+    completed.splice(0, completed.length)
+    tiles.forEach((tile, i) => {
+      if (tile.index % 3 === 0) {
+        completed.push(i)
+      }
+    })
+
     return (
       currentOrientation && (
         <View style={styles.wrapper}>
