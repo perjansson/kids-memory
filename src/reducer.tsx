@@ -1,17 +1,24 @@
-import { Tile, TileIndex } from './types'
+import { Tile, TileIndex, TileSet } from './types'
 
 type ActionType = {
   type:
     | 'start_game'
     | 'select_tile'
-    | 'reset_selected'
+    | 'clear_selected_tiles'
     | 'check_pair'
     | 'got_pair'
+    | 'restart_game'
   payload?: any
 }
 
 interface State {
-  viewState: 'none_selected' | 'one_selected' | 'two_selected' | 'completed'
+  viewState:
+    | 'not_started'
+    | 'none_selected'
+    | 'one_selected'
+    | 'two_selected'
+    | 'completed'
+  tilesSet: TileSet
   tiles: Tile[]
   selected: TileIndex[]
   completed: TileIndex[]
@@ -21,8 +28,9 @@ interface State {
 }
 
 export const initialState: State = {
-  viewState: 'none_selected',
-  tiles: [],
+  viewState: 'not_started',
+  tilesSet: undefined,
+  tiles: undefined,
   selected: [],
   completed: [],
   startTime: undefined,
@@ -38,9 +46,10 @@ export function reducer(
     case 'start_game': {
       return {
         ...initialState,
-        tiles: action.payload,
+        viewState: 'none_selected',
         startTime: undefined,
         stopTime: undefined,
+        ...action.payload,
       }
     }
 
@@ -68,7 +77,7 @@ export function reducer(
       return state
     }
 
-    case 'reset_selected': {
+    case 'clear_selected_tiles': {
       return {
         ...state,
         viewState:
@@ -95,6 +104,13 @@ export function reducer(
       return {
         ...state,
         locked: true,
+      }
+    }
+
+    case 'restart_game': {
+      return {
+        ...initialState,
+        viewState: 'not_started',
       }
     }
 

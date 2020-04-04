@@ -5,7 +5,7 @@
     "privacy": "public",
     "sdkVersion": "36.0.0",
     "platforms": ["ios", "android", "web"],
-    "version": "1.0.2",
+    "version": "1.1.1",
     "orientation": "landscape",
     "icon": "./assets/icon_game.png",
     "splash": {
@@ -19,13 +19,13 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "bundleIdentifier": "com.pichdude.kidsmemory",
-      "buildNumber": "1.0.2",
+      "buildNumber": "1.1.1",
       "supportsTablet": true
     },
     "android": {
       "package": "com.pichdude.kidsmemory",
       "permissions": [],
-      "versionCode": 1
+      "versionCode": 2
     }
   }
 }

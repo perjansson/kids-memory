@@ -1,20 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, LayoutChangeEvent, Dimensions } from 'react-native'
+import React, { useState } from 'react'
+import { View, StyleSheet } from 'react-native'
 import { Asset } from 'expo-asset'
 import { AppLoading } from 'expo'
 
-import { TileSet } from './types'
-import * as storage from './storage'
+import { TileSet, Tile } from './types'
 import assetsMap from '../assets/assetsMap.json'
-import { MemoryGame } from './components/MemoryGame'
+import { MemoryGame, TileSets } from './components/MemoryGame'
 import { ScreenBackground } from './components/ScreenBackground'
-
-const LAST_TILE_SET_STORAGE_KEY = '@KidsMemory:lastTileSetStorageKey'
-
-interface ViewLayout {
-  height: number | string
-  width: number | string
-}
 
 interface TileSetMap {
   [key: string]: string[]
@@ -84,13 +76,8 @@ const tilesCache = {}
 
 export default function App() {
   const [isReady, setIsReady] = useState<boolean>(false)
-  const [viewLayout, setViewLayout] = useState<ViewLayout>({
-    width: '100%',
-    height: '100%',
-  })
-  const [tileSet, setTileSet] = useState<TileSet>(undefined)
 
-  function createTiles(tileSet: TileSet) {
+  function createTiles(tileSet: TileSet): Tile[] {
     let tiles = tilesCache[tileSet]
 
     if (!tiles) {
@@ -106,19 +93,6 @@ export default function App() {
     return tiles
   }
 
-  async function setNextTileSet() {
-    const lastTileSet = (await storage.get(LAST_TILE_SET_STORAGE_KEY)) as
-      | TileSet
-      | undefined
-    const nextTileSet = lastTileSet !== 'animals' ? 'animals' : 'vehicles'
-    setTileSet(nextTileSet)
-    storage.set(LAST_TILE_SET_STORAGE_KEY, nextTileSet)
-  }
-
-  useEffect(() => {
-    setNextTileSet()
-  }, [])
-
   if (!isReady) {
     return (
       <AppLoading
@@ -129,19 +103,20 @@ export default function App() {
     )
   }
 
+  const availableTileSets = Object.keys(IMAGES).reduce(
+    (memo, tileSet: TileSet) => ({
+      ...memo,
+      [tileSet]: createTiles(tileSet),
+    }),
+    {}
+  ) as TileSets
+
   return (
-    viewLayout && (
-      <View style={styles.container}>
-        <ScreenBackground>
-          {tileSet && (
-            <MemoryGame
-              initialTiles={createTiles(tileSet)}
-              onGameCompleted={setNextTileSet}
-            />
-          )}
-        </ScreenBackground>
-      </View>
-    )
+    <View style={styles.container}>
+      <ScreenBackground>
+        <MemoryGame availableTileSets={availableTileSets} />
+      </ScreenBackground>
+    </View>
   )
 }
 

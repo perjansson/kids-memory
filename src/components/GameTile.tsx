@@ -8,7 +8,7 @@ const questionMark = require('../../assets/question-mark.png')
 export type AnimateFn = (animationFnName?: string) => void
 
 interface GameTileProps {
-  gameTile: Tile
+  gameTile?: Tile
   index: number
   visible: boolean
   onSelect: (index: number, animateFn: AnimateFn) => void
@@ -27,7 +27,7 @@ export const GameTile = memo(
     imageContainerStyle,
     imageRef,
   }: GameTileProps) => {
-    const { image } = gameTile
+    const image = gameTile?.image
 
     function handleOnPress() {
       onSelect(index, animate)
