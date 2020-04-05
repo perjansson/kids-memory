@@ -3,6 +3,8 @@ import { Audio } from 'expo-av'
 import Modal from 'react-native-modal'
 import { View, Text, StyleSheet } from 'react-native'
 import { Button } from 'react-native-elements'
+import Icon from 'react-native-vector-icons/FontAwesome'
+
 import { dp } from '../util'
 
 interface CompletedModalProps {
@@ -44,7 +46,9 @@ export function CompletedModal({
         <Text style={styles.modalHeader}>🏆</Text>
         <Button
           title={buttonTitle}
-          raised
+          type="outline"
+          icon={<Icon name="arrow-right" size={20} color="black" />}
+          iconRight
           onPress={onDismiss}
           buttonStyle={styles.modalButton}
           titleStyle={styles.modalButtonTitle}
@@ -71,5 +75,6 @@ const styles = StyleSheet.create({
   modalButtonTitle: {
     color: 'black',
     fontSize: dp(12),
+    marginRight: 10,
   },
 })

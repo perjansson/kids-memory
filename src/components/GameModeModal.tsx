@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import Modal from 'react-native-modal'
 import { View, StyleSheet, Image, TouchableWithoutFeedback } from 'react-native'
 import { Button, CheckBox } from 'react-native-elements'
+import Icon from 'react-native-vector-icons/FontAwesome'
+
 import { dp } from '../util'
 import { TileSet } from '../types'
 
@@ -68,7 +70,9 @@ export function GameModeModal({
           </View>
           <Button
             title="Start game"
-            raised
+            type="outline"
+            icon={<Icon name="arrow-right" size={20} color="black" />}
+            iconRight
             onPress={() => onDismiss(selectedTileSet)}
             buttonStyle={styles.modalButton}
             titleStyle={styles.modalButtonTitle}
@@ -92,8 +96,8 @@ const styles = StyleSheet.create({
   },
   checkBoxContainer: {
     padding: dp(5),
-    height: dp(130),
-    width: dp(130),
+    height: dp(120),
+    width: dp(120),
   },
   checkBoxImage: {
     flex: 1,
@@ -107,5 +111,6 @@ const styles = StyleSheet.create({
   modalButtonTitle: {
     color: 'black',
     fontSize: dp(12),
+    marginRight: 10,
   },
 })
