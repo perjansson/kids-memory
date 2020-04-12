@@ -14,7 +14,7 @@ export function ScreenBackground({ children }: ScreenBackgroundProps) {
   return (
     <View style={dimensionStyle}>
       <LinearGradient
-        colors={['#0f0114', '#060008']}
+        colors={['#0f0114', '#0f0114', '#060008']}
         style={[dimensionStyle, styles.background]}
       >
         {children}

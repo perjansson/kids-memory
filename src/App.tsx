@@ -1,5 +1,11 @@
-import React, { useState } from 'react'
-import { View } from 'react-native'
+import React, { useState, useCallback } from 'react'
+import {
+  View,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+  StyleSheet,
+} from 'react-native'
 import { Asset } from 'expo-asset'
 import { AppLoading } from 'expo'
 
@@ -8,6 +14,7 @@ import assetsMap from '../assets/assetsMap.json'
 import { MemoryGame, TileSets } from './components/MemoryGame'
 import { ScreenBackground } from './components/ScreenBackground'
 import { useDimensionStyle } from './hooks/useDimensionStyle'
+import { useDimensionsChange } from 'react-native-responsive-dimensions'
 
 interface TileSetMap {
   [key: string]: string[]
@@ -75,6 +82,13 @@ async function cacheResourcesAsync() {
 
 const tilesCache = {}
 
+if (
+  Platform.OS === 'android' &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true)
+}
+
 export default function App() {
   const [isReady, setIsReady] = useState<boolean>(false)
 
@@ -93,6 +107,12 @@ export default function App() {
 
     return tiles
   }
+
+  useDimensionsChange(
+    useCallback(({ window, screen }) => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+    }, [])
+  )
 
   const dimensionStyle = useDimensionStyle()
 
