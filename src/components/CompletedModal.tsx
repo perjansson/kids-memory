@@ -6,6 +6,12 @@ import { Button } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome'
 
 import { dp } from '../util'
+import { useDimensionStyle } from '../hooks/useDimensionStyle'
+import {
+  useResponsiveFontSize,
+  useResponsiveHeight,
+  useResponsiveWidth,
+} from 'react-native-responsive-dimensions'
 
 interface CompletedModalProps {
   completionTime?: number
@@ -40,18 +46,39 @@ export function CompletedModal({
     ? `You did it in ${formattedTime}! Restart game?`
     : 'You did it! Restart game?'
 
+  const modalHeaderStyle = {
+    fontSize: useResponsiveFontSize(18),
+    marginVertical: useResponsiveHeight(2),
+  }
+
+  const modalButtonStyle = {
+    width: useResponsiveWidth(80),
+    marginTop: useResponsiveHeight(2),
+    paddingVertical: useResponsiveHeight(1),
+    paddingHorizontal: useResponsiveWidth(1),
+  }
+
+  const modalButtonTitleStyle = {
+    fontSize: useResponsiveFontSize(3),
+    marginRight: useResponsiveWidth(2),
+  }
+
+  const modalButtonIconSize = useResponsiveFontSize(2)
+
   return (
     <Modal isVisible={isVisible} backdropColor="white">
       <View style={styles.modalContainer}>
-        <Text style={styles.modalHeader}>🏆</Text>
+        <Text style={modalHeaderStyle}>🏆</Text>
         <Button
           title={buttonTitle}
           type="outline"
-          icon={<Icon name="arrow-right" size={20} color="black" />}
+          icon={
+            <Icon name="arrow-right" size={modalButtonIconSize} color="black" />
+          }
           iconRight
           onPress={onDismiss}
-          buttonStyle={styles.modalButton}
-          titleStyle={styles.modalButtonTitle}
+          buttonStyle={[styles.modalButton, modalButtonStyle]}
+          titleStyle={[styles.modalButtonTitle, modalButtonTitleStyle]}
         />
       </View>
     </Modal>
@@ -64,17 +91,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalHeader: {
-    marginVertical: dp(8),
-    fontSize: dp(64),
-  },
   modalButton: {
     backgroundColor: 'gold',
-    padding: dp(4),
   },
   modalButtonTitle: {
     color: 'black',
-    fontSize: dp(12),
-    marginRight: 10,
   },
 })

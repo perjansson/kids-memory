@@ -4,6 +4,10 @@ import { ScreenOrientation } from 'expo'
 import { Audio } from 'expo-av'
 import { shuffle, fill } from 'lodash'
 import * as Animatable from 'react-native-animatable'
+import {
+  useResponsiveHeight,
+  useResponsiveWidth,
+} from 'react-native-responsive-dimensions'
 
 import { Tile, TileSet } from '../types'
 import { reducer, initialState } from '../reducer'
@@ -124,7 +128,8 @@ export const MemoryGame = memo(({ availableTileSets }: MemoryGameProps) => {
     TILE_STYLE[orientation] !== undefined ? orientation : determineOrientation()
 
   const gameTileContainerStyle = {
-    ...styles.gameTile,
+    paddingVertical: useResponsiveHeight(0.5),
+    paddingHorizontal: useResponsiveWidth(0.5),
     flexBasis: `${100 / TILE_STYLE[currentOrientation].x}%`,
     height: `${100 / TILE_STYLE[currentOrientation].y}%`,
     maxHeight: `${100 / TILE_STYLE[currentOrientation].y}%`,
@@ -213,22 +218,13 @@ export const MemoryGame = memo(({ availableTileSets }: MemoryGameProps) => {
 
 const styles = StyleSheet.create({
   wrapper: {
-    height: '100%',
-    width: '100%',
-    display: 'flex',
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   container: {
-    height: '100%',
-    display: 'flex',
+    flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
-  },
-  gameTile: {
-    padding: '0.5%',
   },
   gameTileImage: {
     width: '98%',

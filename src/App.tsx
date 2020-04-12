@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View } from 'react-native'
 import { Asset } from 'expo-asset'
 import { AppLoading } from 'expo'
 
@@ -7,6 +7,7 @@ import { TileSet, Tile } from './types'
 import assetsMap from '../assets/assetsMap.json'
 import { MemoryGame, TileSets } from './components/MemoryGame'
 import { ScreenBackground } from './components/ScreenBackground'
+import { useDimensionStyle } from './hooks/useDimensionStyle'
 
 interface TileSetMap {
   [key: string]: string[]
@@ -93,6 +94,8 @@ export default function App() {
     return tiles
   }
 
+  const dimensionStyle = useDimensionStyle()
+
   if (!isReady) {
     return (
       <AppLoading
@@ -112,17 +115,10 @@ export default function App() {
   ) as TileSets
 
   return (
-    <View style={styles.container}>
+    <View style={dimensionStyle}>
       <ScreenBackground>
         <MemoryGame availableTileSets={availableTileSets} />
       </ScreenBackground>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    height: '100%',
-  },
-})
